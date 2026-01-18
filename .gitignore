@@ -1,0 +1,35 @@
+# Environments
+venv/
+.venv/
+env/
+
+# Python internals
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+
+# Database (if using SQLite)
+instance/
+*.sqlite3
+*.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Virtual Environment
+bin/
+include/
+lib/
+lib64
+pyvenv.cfg
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Local Database
+*.db
+*.sqlite3
