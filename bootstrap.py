@@ -19,10 +19,15 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     
-    # Models Loading and Blueprints Registration
-    # from models.post import Post
-    # from controllers.post_controller import post_bp
-    # app.register_blueprint(post_bp)
+    # including Laboratoire Model for Migration and it's Controller
+    from models.laboratoire import Laboratoire
+    from controllers.laboratoire_controller import laboratoire_bp
+    app.register_blueprint(laboratoire_bp)
+    
+    from models.chercheur import Chercheur
+    from controllers.chercheur_controller import chercheur_bp
+    app.register_blueprint(chercheur_bp)
+    
     from controllers.home_controller import home_bp
     app.register_blueprint(home_bp)
 
