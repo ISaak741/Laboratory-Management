@@ -1,8 +1,8 @@
-"""create chercheur and laboratoire tables 
+"""first migration
 
-Revision ID: f68559213b0c
+Revision ID: 2134201d9799
 Revises: 
-Create Date: 2026-01-18 17:13:02.813988
+Create Date: 2026-01-19 20:47:02.365752
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f68559213b0c'
+revision = '2134201d9799'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,7 +25,7 @@ def upgrade():
     sa.Column('specialite', sa.String(length=150), nullable=False),
     sa.Column('email', sa.String(length=150), nullable=False),
     sa.Column('id_lab', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['id_lab'], ['laboratoires.id_lab'] ),
+    sa.ForeignKeyConstraint(['id_lab'], ['laboratoires.id_lab'], ),
     sa.PrimaryKeyConstraint('id_chercheur'),
     sa.UniqueConstraint('email')
     )
@@ -35,7 +35,7 @@ def upgrade():
     sa.Column('adresse', sa.String(length=255), nullable=False),
     sa.Column('domaine', sa.String(length=100), nullable=False),
     sa.Column('university', sa.String(length=150), nullable=False),
-    sa.Column('directeur_id', sa.Integer(), nullable=True),
+    sa.Column('directeur_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['directeur_id'], ['chercheurs.id_chercheur'], ),
     sa.PrimaryKeyConstraint('id_lab')
     )
