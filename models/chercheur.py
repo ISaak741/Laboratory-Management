@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Integer, ForeignKey
 from bootstrap import db
-
 class Chercheur(db.Model):
     __tablename__ = 'chercheurs'
 
@@ -25,6 +24,11 @@ class Chercheur(db.Model):
         foreign_keys="[Laboratoire.directeur_id]"
     )
     
+    experience_link: Mapped[list["ExperienceChercheur"]] = relationship(
+        "ExperienceChercheur",
+        back_populates="chercheur",
+    )
+
     @property
     def laboratoire(self):
         return self.laboratoire_dirige or self.membership

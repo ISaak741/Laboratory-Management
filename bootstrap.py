@@ -3,6 +3,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dotenv import load_dotenv
+from flask_cors import CORS
+
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -11,6 +13,7 @@ def create_app():
     load_dotenv()
     
     app = Flask(__name__)
+    CORS(app)
     
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -27,6 +30,16 @@ def create_app():
     from models.chercheur import Chercheur
     from controllers.chercheur_controller import chercheur_bp
     app.register_blueprint(chercheur_bp)
+
+    from models.experience import Experience
+    from models.mesure import Mesure
+    from models.experience_chercheur import ExperienceChercheur
+    from controllers.experience_controller import experience_bp,experiencechercheur_bp,mesure_bp
+    # from controllers.chercheur_controller import experiencechercheur_bp
+    app.register_blueprint(experience_bp)
+    app.register_blueprint(experiencechercheur_bp)
+    app.register_blueprint(mesure_bp)
+
     
     from controllers.home_controller import home_bp
     app.register_blueprint(home_bp)
