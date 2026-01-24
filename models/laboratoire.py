@@ -3,7 +3,7 @@ from sqlalchemy import String, Integer, ForeignKey
 from bootstrap import db
 
 class Laboratoire(db.Model):
-    __tablename__ = 'laboratoires' 
+    __tablename__ = 'laboratoires'
 
     id_lab: Mapped[int] = mapped_column(Integer, primary_key=True)
     nom: Mapped[str] = mapped_column(String(150), nullable=False)
@@ -15,21 +15,21 @@ class Laboratoire(db.Model):
 
     # setting up relationship with Chercheur for easy access to the director details
     directeur: Mapped["Chercheur"] = relationship(
-        "Chercheur", 
+        "Chercheur",
         back_populates="laboratoire_dirige",
         foreign_keys=[directeur_id]
     )
-    
+
     # setting up a hasmany relationship with Chercheur
     chercheurs: Mapped[list["Chercheur"]] = relationship(
-        "Chercheur", 
+        "Chercheur",
         back_populates="membership",
         foreign_keys="[Chercheur.id_lab]"
     )
 
     def __repr__(self):
         return f'<Laboratoire {self.nom}>'
-    
+
     def save(self):
         db.session.add(self)
         db.session.commit()

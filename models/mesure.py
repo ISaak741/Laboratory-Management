@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Integer, ForeignKey,Float,DateTime
 from bootstrap import db
-# from models.experience_chercheur import ExperienceChercheur
+
 
 class Mesure(db.Model):
     __tablename__ = "mesure"
@@ -14,14 +14,14 @@ class Mesure(db.Model):
     id_experience: Mapped[int] = mapped_column(ForeignKey("experience.id"), nullable=False)
 
     experience: Mapped["Experience"] = relationship(
-        "Experience", 
+        "Experience",
         back_populates="mesure",
         foreign_keys=[id_experience]
     )
-    
+
     def __repr__(self):
         return f'<Mesure {self.nom}>'
-    
+
     def save(self):
         db.session.add(self)
         db.session.commit()

@@ -17,19 +17,19 @@ class ExperienceChercheur(db.Model):
 
     experience: Mapped["Experience"] = relationship(
         "Experience",
-        back_populates="experience_link",
+        back_populates="experience_chercheurs",
         foreign_keys=[id_experience]
     )
 
     chercheur: Mapped["Chercheur"] = relationship(
         "Chercheur",
-        back_populates="experience_link",
+        back_populates="experience_chercheurs",
         foreign_keys=[id_chercheur]
     )
 
     # def __repr__(self):
     #     return f'<Laboratoire {self.nom}>'
-    
+
     def save(self):
         db.session.add(self)
         db.session.commit()

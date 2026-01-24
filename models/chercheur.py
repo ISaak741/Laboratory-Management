@@ -13,29 +13,39 @@ class Chercheur(db.Model):
 
     id_lab: Mapped[int] = mapped_column(ForeignKey("laboratoires.id_lab"), nullable=True)
     membership : Mapped["Laboratoire"] = relationship(
-        "Laboratoire", 
+        "Laboratoire",
         back_populates="chercheurs",
         foreign_keys=[id_lab]
     )
 
     laboratoire_dirige: Mapped["Laboratoire"] = relationship(
-        "Laboratoire", 
+        "Laboratoire",
         back_populates="directeur",
         foreign_keys="[Laboratoire.directeur_id]"
     )
-    
-    experience_link: Mapped[list["ExperienceChercheur"]] = relationship(
-        "ExperienceChercheur",
+
+    experience_chercheurs: Mapped[list["ExperienceChercheur"]] = relationship(
         back_populates="chercheur",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
+
+    experiences: Mapped[list["Experience"]] = relationship(
+        secondary="experience_chercheur",
+        viewonly=True,
+        lazy="selectin"
     )
 
     @property
     def laboratoire(self):
         return self.laboratoire_dirige or self.membership
 
+    @property
+    def nom_complet(self):
+        return f'{self.nom} {self.prenom}'
     def __repr__(self):
         return f'<Chercheur {self.nom} {self.prenom}>'
-    
+
     def save(self):
         db.session.add(self)
         db.session.commit()

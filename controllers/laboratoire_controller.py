@@ -1,7 +1,11 @@
 from flask import Blueprint, jsonify, request
+from sqlalchemy import func, distinct
 from sqlalchemy.orm import joinedload
 from models.chercheur import Chercheur
 from models.laboratoire import Laboratoire
+from models.experience_chercheur import ExperienceChercheur
+from bootstrap import db
+
 
 laboratoire_bp = Blueprint('laboratoire', __name__)
 
@@ -14,7 +18,7 @@ def get_laboratoires():
         'adresse': lab.adresse,
         'domaine': lab.domaine,
         'university': lab.university,
-        'directeur': lab.directeur.nom if lab.directeur else 'Non Directeur pour le moment'
+        'directeur': lab.directeur.nom_complet if lab.directeur else 'Non Directeur pour le moment'
     } for lab in laboratoires])
 
 @laboratoire_bp.route('/laboratoires', methods=['POST'])
@@ -35,12 +39,12 @@ def create_laboratoire():
             directeur_id=data.get('directeur_id')
         )
         new_lab.save()
-        
+
         chercheur_directeur = Chercheur.query.get(new_lab.directeur_id)
         if chercheur_directeur:
             chercheur_directeur.id_lab = new_lab.id_lab
             chercheur_directeur.save()
-            
+
 
         return jsonify({"message": "Laboratoire created successfully", "id": new_lab.id_lab}), 201
 
@@ -56,26 +60,42 @@ def create_laboratoire():
 
 @laboratoire_bp.route('/laboratoires/<int:id_lab>', methods=['GET'])
 def get_laboratoire(id_lab):
-    lab = Laboratoire.query.options(joinedload(Laboratoire.chercheurs)).get_or_404(id_lab)
-    
-    membres = [{
-        "id_chercheur": cher.id_chercheur,
-        "nom": cher.nom,
-        "prenom": cher.prenom,
-        "specialite": cher.specialite,
-        "email": cher.email
-    } for cher in lab.chercheurs]
-    
+    lab = (
+        db.session.query(Laboratoire)
+        .options(joinedload(Laboratoire.chercheurs))
+        .filter(Laboratoire.id_lab == id_lab)
+        .first_or_404()
+    )
+
+    total_experiences = (
+        db.session.query(func.count(distinct(ExperienceChercheur.id_experience)))
+        .join(Chercheur, Chercheur.id_chercheur == ExperienceChercheur.id_chercheur)
+        .filter(Chercheur.id_lab == id_lab)
+        .scalar()
+    )
+
+    membres = [
+        {
+            "id_chercheur": cher.id_chercheur,
+            "nom": cher.nom,
+            "prenom": cher.prenom,
+            "specialite": cher.specialite,
+            "email": cher.email
+        }
+        for cher in lab.chercheurs
+    ]
+
     return jsonify({
         'id_lab': lab.id_lab,
         'nom': lab.nom,
         'adresse': lab.adresse,
         'domaine': lab.domaine,
         'university': lab.university,
-        'directeur': lab.directeur.nom if lab.directeur else 'Non Directeur pour le moment',
-        'liste_chercheurs': membres
+        'directeur': lab.directeur.nom_complet if lab.directeur else 'Non Directeur pour le moment',
+        'liste_chercheurs': membres,
+        'experiences': total_experiences
     })
-    
+
 @laboratoire_bp.route('/laboratoires/<int:id_lab>', methods=['PUT'])
 def update_laboratoire(id_lab):
     lab = Laboratoire.query.get_or_404(id_lab)
@@ -86,19 +106,19 @@ def update_laboratoire(id_lab):
     lab.domaine = data.get('domaine', lab.domaine)
     lab.university = data.get('university', lab.university)
     lab.directeur_id = data.get('directeur_id', lab.directeur_id)
-    
+
     lab.save()
-    
+
     return jsonify({'message': 'Laboratoire updated'})
 
 @laboratoire_bp.route('/laboratoires/<int:id_lab>', methods=['DELETE'])
 def delete_laboratoire(id_lab):
     lab = Laboratoire.query.get_or_404(id_lab)
-    
+
     try:
         for chercheur in lab.chercheurs:
             chercheur.id_lab = None
-        
+
         lab.delete()
         return jsonify({"message": f"Laboratoire {id_lab} deleted successfully"}), 200
     except Exception as e:

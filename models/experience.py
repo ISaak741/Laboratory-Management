@@ -8,20 +8,29 @@ class Experience(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key = True)
     titre: Mapped[str] = mapped_column(String)
-    descritption: Mapped[str] = mapped_column(String)
+    description: Mapped[str] = mapped_column(String)
 
-    experience_link: Mapped["ExperienceChercheur"] = relationship(
-        "ExperienceChercheur",
+    experience_chercheurs: Mapped[list["ExperienceChercheur"]] = relationship(
         back_populates="experience",
+        cascade="all, delete-orphan",
+        lazy="selectin"
     )
+
+    chercheurs: Mapped[list["Chercheur"]] = relationship(
+        secondary="experience_chercheur",
+        viewonly=True,
+        lazy="selectin"
+    )
+
     mesure: Mapped[list["Mesure"]] = relationship(
         "Mesure",
-        back_populates="experience",
+        cascade="all, delete-orphan",
+        back_populates="experience"
     )
-    
+
     def __repr__(self):
         return f'<experience {self.nom}>'
-    
+
     def save(self):
         db.session.add(self)
         db.session.commit()
