@@ -1,0 +1,14 @@
+# Ignore local database instances
+instance/
+*.sqlite3
+*.db
+
+# Ignore local migrations
+migrations/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+.env
+.git 
+.gitignore
